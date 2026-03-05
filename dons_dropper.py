@@ -117,9 +117,9 @@ def main() -> None:
     pygame.display.set_caption("Don's Dropper")
     clock = pygame.time.Clock()
 
-    don_img = load_image_if_exists("don.png", (170, 170)) or make_labeled_surface((170, 170), "DON", (196, 79, 84))
-    bob_open_img = load_image_if_exists("bob_open.png", (170, 95)) or make_labeled_surface((170, 95), "BOB :O", (85, 146, 98))
-    bob_closed_img = load_image_if_exists("bob_closed.png", (170, 95)) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
+    don_img = load_image_if_exists("don.jpg", (170, 170)) or make_labeled_surface((170, 170), "DON", (196, 79, 84))
+    bob_open_img = load_image_if_exists("bob_open.jpg", (170, 95)) or make_labeled_surface((170, 95), "BOB :O", (85, 146, 98))
+    bob_closed_img = load_image_if_exists("bob_closed.jpg", (170, 95)) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
 
     pants_img = load_image_if_exists("yellow_pants.png", (64, 64)) or make_labeled_surface((64, 64), "PANTS", (246, 215, 66))
 
