@@ -71,37 +71,28 @@ def must_load_asset(name: str, size: tuple[int, int]) -> pygame.Surface:
     return pygame.transform.smoothscale(image, size)
 
 
-def make_watermelon_surface(size: tuple[int, int] = (64, 64)) -> pygame.Surface:
-    surf = pygame.Surface(size, pygame.SRCALPHA)
-    center = (size[0] // 2, size[1] // 2 + 6)
-    radius = 27
-    pygame.draw.circle(surf, (46, 169, 65), center, radius)
-    pygame.draw.circle(surf, (230, 246, 207), center, radius - 4)
-    pygame.draw.circle(surf, (241, 78, 102), center, radius - 8)
-    for _ in range(10):
-        x = random.randint(center[0] - 14, center[0] + 14)
-        y = random.randint(center[1] - 12, center[1] + 10)
-        pygame.draw.ellipse(surf, (35, 35, 35), (x, y, 4, 7))
-    return surf
+def make_emoji_surface(emoji: str, size: tuple[int, int] = (64, 64)) -> pygame.Surface:
+    surface = pygame.Surface(size, pygame.SRCALPHA)
+    fonts = [
+        pygame.font.SysFont("apple color emoji", 52),
+        pygame.font.SysFont("segoe ui emoji", 52),
+        pygame.font.SysFont("noto color emoji", 52),
+        pygame.font.SysFont("arial", 48),
+    ]
 
+    glyph = None
+    for font in fonts:
+        candidate = font.render(emoji, True, (255, 255, 255))
+        if candidate.get_width() > 8:
+            glyph = candidate
+            break
 
-def make_beer_surface(size: tuple[int, int] = (64, 64)) -> pygame.Surface:
-    surf = pygame.Surface(size, pygame.SRCALPHA)
-    pygame.draw.rect(surf, (247, 191, 66), (14, 18, 30, 36), border_radius=7)
-    pygame.draw.rect(surf, (255, 246, 222), (12, 10, 34, 14), border_radius=8)
-    pygame.draw.rect(surf, (214, 150, 40), (14, 18, 30, 36), width=3, border_radius=7)
-    pygame.draw.rect(surf, (220, 176, 94), (42, 24, 13, 20), width=4, border_radius=7)
-    return surf
+    if glyph is None:
+        glyph = pygame.font.SysFont("arial", 24, bold=True).render("?", True, (255, 255, 255))
 
-
-def make_eggplant_surface(size: tuple[int, int] = (64, 64)) -> pygame.Surface:
-    surf = pygame.Surface(size, pygame.SRCALPHA)
-    body_points = [(25, 18), (37, 20), (46, 29), (47, 43), (39, 53), (25, 56), (17, 48), (16, 32)]
-    pygame.draw.polygon(surf, (126, 67, 177), body_points)
-    pygame.draw.polygon(surf, (87, 42, 132), body_points, width=3)
-    pygame.draw.polygon(surf, (106, 172, 74), [(24, 16), (30, 10), (38, 14), (35, 22), (27, 22)])
-    pygame.draw.polygon(surf, (72, 128, 51), [(24, 16), (30, 10), (38, 14), (35, 22), (27, 22)], width=2)
-    return surf
+    glyph_rect = glyph.get_rect(center=(size[0] // 2, size[1] // 2))
+    surface.blit(glyph, glyph_rect)
+    return surface
 
 
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
@@ -114,15 +105,15 @@ def main() -> None:
     pygame.display.set_caption("Don's Dropper")
     clock = pygame.time.Clock()
 
-    don_img = must_load_asset("don.png", (170, 170))
-    bob_open_img = must_load_asset("bob_open.png", (170, 95))
-    bob_closed_img = must_load_asset("bob_closed.png", (170, 95))
+    don_img = must_load_asset("don.jpg", (170, 170))
+    bob_open_img = must_load_asset("bob_open.jpg", (170, 95))
+    bob_closed_img = must_load_asset("bob_closed.jpg", (170, 95))
     pants_img = must_load_asset("yellow_pants.png", (64, 64))
 
     drop_images = {
-        "watermelon": make_watermelon_surface(),
-        "beer_mug": make_beer_surface(),
-        "eggplant": make_eggplant_surface(),
+        "watermelon": make_emoji_surface("🍉"),
+        "beer_mug": make_emoji_surface("🍺"),
+        "eggplant": make_emoji_surface("🍆"),
         "yellow_pants": pants_img,
     }
 
