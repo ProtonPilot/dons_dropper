@@ -36,4 +36,6 @@ To avoid GitHub PR issues with binary image diffs, this repo does **not** requir
 - Don/Bob images are loaded from `assets/` **if present**.
 - If those files are missing, the game renders clean fallback sprites in memory.
 - Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime (no emoji PNGs required).
-- Yellow pants uses `assets/yellow_pants.png` when available, with a fallback sprite if missing.
+- Yellow pants uses `assets/pants.jpg` (or `assets/yellow_pants.png`) when available, with a fallback sprite if missing.
+- Main character assets are loaded from `assets/dropper.jpg`, `assets/head_open.jpg`, and `assets/head_closed.jpg`.
+- Item spawning uses a shuffled 4-item wave so each set has equal frequency: 🍉, 🍺, 🍆, and pants.
