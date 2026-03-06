@@ -132,7 +132,7 @@ def main() -> None:
         "watermelon": make_emoji_surface("🍉"),
         "beer_mug": make_emoji_surface("🍺"),
         "eggplant": make_emoji_surface("🍆"),
-        "pants": pants_img,
+        "yellow_pants": pants_img,
     }
 
     ui_font = pygame.font.SysFont("arial", 28)
@@ -142,7 +142,7 @@ def main() -> None:
     start_button = Button("Start Game", pygame.Rect(SCREEN_WIDTH // 2 - 110, SCREEN_HEIGHT // 2 + 50, 220, 62))
     restart_button = Button("Start New Game", pygame.Rect(SCREEN_WIDTH // 2 - 135, SCREEN_HEIGHT // 2 + 35, 270, 62))
 
-    item_keys = ["watermelon", "beer_mug", "eggplant", "pants"]
+    item_keys = ["watermelon", "beer_mug", "eggplant", "yellow_pants"]
     next_wave: list[str] = []
 
     drops, score, misses, drop_speed, frame_count = reset_game()

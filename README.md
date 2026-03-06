@@ -38,4 +38,4 @@ To avoid GitHub PR issues with binary image diffs, this repo does **not** requir
 - Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime (no emoji PNGs required).
 - Yellow pants uses `assets/pants.jpg` when available, with a fallback sprite if missing.
 - Main character assets are loaded from `assets/dropper.jpg`, `assets/head_open.jpg`, and `assets/head_closed.jpg`.
-- Item spawning uses a shuffled 4-item wave so each set has equal frequency: 🍉, 🍺, 🍆, and pants.
+- Item spawning uses a shuffled 4-item wave so each set has equal frequency: 🍉, 🍺, 🍆, and pants (from `assets/pants.jpg`).
