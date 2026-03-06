@@ -107,6 +107,14 @@ def load_image_if_exists(name: str, size: tuple[int, int]) -> pygame.Surface | N
     return pygame.transform.smoothscale(image, size)
 
 
+def load_first_available_image(names: list[str], size: tuple[int, int]) -> pygame.Surface | None:
+    for name in names:
+        image = load_image_if_exists(name, size)
+        if image is not None:
+            return image
+    return None
+
+
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
     return [], 0, 0, DROP_SPEED_START, 0
 
@@ -117,11 +125,19 @@ def main() -> None:
     pygame.display.set_caption("Don's Dropper")
     clock = pygame.time.Clock()
 
-    don_img = load_image_if_exists("don.jpg", (170, 170)) or make_labeled_surface((170, 170), "DON", (196, 79, 84))
-    bob_open_img = load_image_if_exists("bob_open.jpg", (170, 95)) or make_labeled_surface((170, 95), "BOB :O", (85, 146, 98))
-    bob_closed_img = load_image_if_exists("bob_closed.jpg", (170, 95)) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
+    don_img = load_first_available_image(["dropper.jpg", "don.jpg", "dropper.png"], (170, 170)) or make_labeled_surface(
+        (170, 170), "DON", (196, 79, 84)
+    )
+    bob_open_img = load_first_available_image(["head_open.jpg", "bob_open.jpg", "head_open.png"], (170, 95)) or make_labeled_surface(
+        (170, 95), "BOB :O", (85, 146, 98)
+    )
+    bob_closed_img = load_first_available_image(
+        ["head_closed.jpg", "bob_closed.jpg", "head_closed.png"], (170, 95)
+    ) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
 
-    pants_img = load_image_if_exists("yellow_pants.png", (64, 64)) or make_labeled_surface((64, 64), "PANTS", (246, 215, 66))
+    pants_img = load_first_available_image(["pants.jpg", "yellow_pants.png", "pants.png"], (64, 64)) or make_labeled_surface(
+        (64, 64), "PANTS", (246, 215, 66)
+    )
 
     drop_images = {
         "watermelon": make_emoji_surface("🍉"),
@@ -136,6 +152,9 @@ def main() -> None:
 
     start_button = Button("Start Game", pygame.Rect(SCREEN_WIDTH // 2 - 110, SCREEN_HEIGHT // 2 + 50, 220, 62))
     restart_button = Button("Start New Game", pygame.Rect(SCREEN_WIDTH // 2 - 135, SCREEN_HEIGHT // 2 + 35, 270, 62))
+
+    item_keys = ["watermelon", "beer_mug", "eggplant", "yellow_pants"]
+    next_wave: list[str] = []
 
     drops, score, misses, drop_speed, frame_count = reset_game()
     player_x = SCREEN_WIDTH // 2
@@ -157,15 +176,21 @@ def main() -> None:
                 elif game_state in {"loading", "game_over"} and event.key in {pygame.K_RETURN, pygame.K_SPACE}:
                     drops, score, misses, drop_speed, frame_count = reset_game()
                     bob_catch_timer = 0
+                    random.shuffle(item_keys)
+                    next_wave = item_keys.copy()
                     game_state = "playing"
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if game_state == "loading" and start_button.rect.collidepoint(event.pos):
                     drops, score, misses, drop_speed, frame_count = reset_game()
                     bob_catch_timer = 0
+                    random.shuffle(item_keys)
+                    next_wave = item_keys.copy()
                     game_state = "playing"
                 elif game_state == "game_over" and restart_button.rect.collidepoint(event.pos):
                     drops, score, misses, drop_speed, frame_count = reset_game()
                     bob_catch_timer = 0
+                    random.shuffle(item_keys)
+                    next_wave = item_keys.copy()
                     game_state = "playing"
 
         if game_state == "playing":
@@ -180,7 +205,10 @@ def main() -> None:
 
             frame_count += 1
             if frame_count % SPAWN_EVERY_FRAMES == 0:
-                item_key = random.choice(list(drop_images.keys()))
+                if not next_wave:
+                    next_wave = item_keys.copy()
+                    random.shuffle(next_wave)
+                item_key = next_wave.pop()
                 x = random.randint(35, SCREEN_WIDTH - 99)
                 drops.append(Drop(x, -70, item_key, drop_images[item_key]))
 
