@@ -112,6 +112,14 @@ def load_image_if_exists(name: str, size: tuple[int, int]) -> pygame.Surface | N
     return pygame.transform.smoothscale(image, size)
 
 
+def load_first_available_image(names: list[str], size: tuple[int, int]) -> pygame.Surface | None:
+    for name in names:
+        image = load_image_if_exists(name, size)
+        if image is not None:
+            return image
+    return None
+
+
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
     return [], 0, 0, DROP_SPEED_START, 0
 
