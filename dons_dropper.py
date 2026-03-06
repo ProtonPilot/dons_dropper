@@ -22,6 +22,11 @@ BUTTON_HOVER = (71, 128, 232)
 
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 
+DROPPER_IMAGE = "dropper.jpg"
+HEAD_OPEN_IMAGE = "head_open.jpg"
+HEAD_CLOSED_IMAGE = "head_closed.jpg"
+PANTS_IMAGE = "pants.jpg"
+
 
 class Drop:
     def __init__(self, x: int, y: int, item_key: str, image: pygame.Surface) -> None:
@@ -125,19 +130,11 @@ def main() -> None:
     pygame.display.set_caption("Don's Dropper")
     clock = pygame.time.Clock()
 
-    don_img = load_first_available_image(["dropper.jpg", "don.jpg", "dropper.png"], (170, 170)) or make_labeled_surface(
-        (170, 170), "DON", (196, 79, 84)
-    )
-    bob_open_img = load_first_available_image(["head_open.jpg", "bob_open.jpg", "head_open.png"], (170, 95)) or make_labeled_surface(
-        (170, 95), "BOB :O", (85, 146, 98)
-    )
-    bob_closed_img = load_first_available_image(
-        ["head_closed.jpg", "bob_closed.jpg", "head_closed.png"], (170, 95)
-    ) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
+    don_img = load_image_if_exists(DROPPER_IMAGE, (170, 170)) or make_labeled_surface((170, 170), "DON", (196, 79, 84))
+    bob_open_img = load_image_if_exists(HEAD_OPEN_IMAGE, (170, 95)) or make_labeled_surface((170, 95), "BOB :O", (85, 146, 98))
+    bob_closed_img = load_image_if_exists(HEAD_CLOSED_IMAGE, (170, 95)) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
 
-    pants_img = load_first_available_image(["pants.jpg", "yellow_pants.png", "pants.png"], (64, 64)) or make_labeled_surface(
-        (64, 64), "PANTS", (246, 215, 66)
-    )
+    pants_img = load_image_if_exists(PANTS_IMAGE, (64, 64)) or make_labeled_surface((64, 64), "PANTS", (246, 215, 66))
 
     drop_images = {
         "watermelon": make_emoji_surface("🍉"),
