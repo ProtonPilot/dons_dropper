@@ -86,7 +86,6 @@ def make_emoji_surface(emoji: str, size: tuple[int, int] = (64, 64)) -> pygame.S
         pygame.font.SysFont("apple color emoji", 52),
         pygame.font.SysFont("segoe ui emoji", 52),
         pygame.font.SysFont("noto color emoji", 52),
-        pygame.font.SysFont("arial", 48),
     ]
 
     glyph = None
@@ -120,6 +119,13 @@ def load_first_available_image(names: list[str], size: tuple[int, int]) -> pygam
     return None
 
 
+def make_drop_image(item_key: str, emoji: str, size: tuple[int, int] = (64, 64)) -> pygame.Surface:
+    image = load_first_available_image([f"{item_key}.png", f"{item_key}.jpg", f"{item_key}.jpeg"], size)
+    if image is not None:
+        return image
+    return make_emoji_surface(emoji, size)
+
+
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
     return [], 0, 0, DROP_SPEED_START, 0
 
@@ -137,9 +143,9 @@ def main() -> None:
     pants_img = load_image_if_exists(PANTS_IMAGE, (64, 64)) or make_labeled_surface((64, 64), "PANTS", (246, 215, 66))
 
     drop_images = {
-        "watermelon": make_emoji_surface("🍉"),
-        "beer_mug": make_emoji_surface("🍺"),
-        "eggplant": make_emoji_surface("🍆"),
+        "watermelon": make_drop_image("watermelon", "🍉"),
+        "beer_mug": make_drop_image("beer_mug", "🍺"),
+        "eggplant": make_drop_image("eggplant", "🍆"),
         "yellow_pants": pants_img,
     }
 
