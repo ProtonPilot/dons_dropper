@@ -35,7 +35,7 @@ To avoid GitHub PR issues with binary image diffs, this repo does **not** requir
 
 - Don/Bob images are loaded from `assets/` next to the script, or from the current working directory `assets/`.
 - If those files are missing, the game renders clean fallback sprites in memory.
-- Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime when emoji fonts are available; if the font only returns missing-glyph boxes, the game now falls back to built-in icon art instead of placeholder text.
+- Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime when emoji fonts are available.
 - You can optionally provide `assets/watermelon.png|jpg`, `assets/beer_mug.png|jpg`, and `assets/eggplant.png|jpg` to guarantee image-based drops on systems without emoji fonts.
 - Yellow pants uses `assets/pants.jpg` when available, with a fallback sprite if missing.
 - Main character assets are loaded from `assets/dropper.jpg`, `assets/head_open.jpg`, and `assets/head_closed.jpg`.

@@ -149,7 +149,7 @@ def make_drop_image(item_key: str, emoji: str, size: tuple[int, int] = (64, 64))
     image = load_first_available_image([f"{item_key}.png", f"{item_key}.jpg", f"{item_key}.jpeg"], size)
     if image is not None:
         return image
-    return make_emoji_surface(emoji, item_key, size)
+    return make_emoji_surface(emoji, size)
 
 
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
