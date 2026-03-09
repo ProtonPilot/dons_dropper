@@ -23,6 +23,25 @@ BUTTON_HOVER = (71, 128, 232)
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 ASSET_SEARCH_DIRS = [ASSETS_DIR, Path.cwd() / "assets"]
 
+
+def build_asset_search_dirs() -> list[Path]:
+    roots = [Path(__file__).resolve().parent, Path.cwd()]
+    for root in list(roots):
+        roots.extend(root.parents)
+
+    dirs: list[Path] = []
+    seen: set[Path] = set()
+    for root in roots:
+        assets_dir = root / "assets"
+        if assets_dir in seen:
+            continue
+        seen.add(assets_dir)
+        dirs.append(assets_dir)
+    return dirs
+
+
+ASSET_SEARCH_DIRS = build_asset_search_dirs()
+
 DROPPER_IMAGE = "dropper.jpg"
 HEAD_OPEN_IMAGE = "head_open.jpg"
 HEAD_CLOSED_IMAGE = "head_closed.jpg"
