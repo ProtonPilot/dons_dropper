@@ -21,6 +21,7 @@ BUTTON_COLOR = (51, 102, 209)
 BUTTON_HOVER = (71, 128, 232)
 
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+ASSET_SEARCH_DIRS = [ASSETS_DIR, Path.cwd() / "assets"]
 
 DROPPER_IMAGE = "dropper.jpg"
 HEAD_OPEN_IMAGE = "head_open.jpg"
@@ -78,7 +79,26 @@ def make_labeled_surface(size: tuple[int, int], label: str, fill: tuple[int, int
     return surface
 
 
-def make_emoji_surface(emoji: str, size: tuple[int, int] = (64, 64)) -> pygame.Surface:
+def make_icon_surface(item_key: str, size: tuple[int, int] = (64, 64)) -> pygame.Surface:
+    surface = pygame.Surface(size, pygame.SRCALPHA)
+    w, h = size
+
+    if item_key == "watermelon":
+        pygame.draw.circle(surface, (34, 139, 34), (w // 2, h // 2), min(w, h) // 2 - 4)
+        pygame.draw.circle(surface, (210, 60, 80), (w // 2, h // 2), min(w, h) // 2 - 10)
+        for sx, sy in [(20, 24), (40, 28), (28, 38), (45, 44)]:
+            pygame.draw.ellipse(surface, (25, 25, 25), (sx, sy, 4, 7))
+    elif item_key == "beer_mug":
+        pygame.draw.rect(surface, (245, 186, 44), (14, 14, 32, 38), border_radius=6)
+        pygame.draw.rect(surface, (255, 242, 197), (14, 10, 32, 10), border_radius=6)
+        pygame.draw.rect(surface, (225, 225, 225), (42, 22, 12, 22), width=4, border_radius=6)
+    elif item_key == "eggplant":
+        pygame.draw.ellipse(surface, (105, 51, 166), (16, 16, 30, 42))
+        pygame.draw.polygon(surface, (95, 170, 70), [(34, 16), (40, 10), (46, 16), (40, 20)])
+    return surface
+
+
+def make_emoji_surface(emoji: str, item_key: str, size: tuple[int, int] = (64, 64)) -> pygame.Surface:
     surface = pygame.Surface(size, pygame.SRCALPHA)
     surface.fill((0, 0, 0, 0))
 
@@ -91,12 +111,13 @@ def make_emoji_surface(emoji: str, size: tuple[int, int] = (64, 64)) -> pygame.S
     glyph = None
     for font in fonts:
         candidate = font.render(emoji, True, (255, 255, 255))
-        if candidate.get_width() > 8:
+        glyph_rect = candidate.get_bounding_rect()
+        if glyph_rect.width >= size[0] // 2 and glyph_rect.height >= size[1] // 2:
             glyph = candidate
             break
 
     if glyph is None:
-        glyph = pygame.font.SysFont("arial", 26, bold=True).render("ITEM", True, (255, 255, 255))
+        return make_icon_surface(item_key, size)
 
     glyph_rect = glyph.get_rect(center=(size[0] // 2, size[1] // 2))
     surface.blit(glyph, glyph_rect)
@@ -104,11 +125,16 @@ def make_emoji_surface(emoji: str, size: tuple[int, int] = (64, 64)) -> pygame.S
 
 
 def load_image_if_exists(name: str, size: tuple[int, int]) -> pygame.Surface | None:
-    image_path = ASSETS_DIR / name
-    if not image_path.exists():
-        return None
-    image = pygame.image.load(image_path).convert_alpha()
-    return pygame.transform.smoothscale(image, size)
+    for assets_dir in ASSET_SEARCH_DIRS:
+        image_path = assets_dir / name
+        if not image_path.exists():
+            continue
+        try:
+            image = pygame.image.load(image_path).convert_alpha()
+            return pygame.transform.smoothscale(image, size)
+        except pygame.error:
+            continue
+    return None
 
 
 def load_first_available_image(names: list[str], size: tuple[int, int]) -> pygame.Surface | None:
@@ -136,11 +162,11 @@ def main() -> None:
     pygame.display.set_caption("Don's Dropper")
     clock = pygame.time.Clock()
 
-    don_img = load_image_if_exists(DROPPER_IMAGE, (170, 170)) or make_labeled_surface((170, 170), "DON", (196, 79, 84))
-    bob_open_img = load_image_if_exists(HEAD_OPEN_IMAGE, (170, 95)) or make_labeled_surface((170, 95), "BOB :O", (85, 146, 98))
-    bob_closed_img = load_image_if_exists(HEAD_CLOSED_IMAGE, (170, 95)) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
+    don_img = load_first_available_image(["dropper.jpg", "dropper.jpeg", "dropper.png"], (170, 170)) or make_labeled_surface((170, 170), "DON", (196, 79, 84))
+    bob_open_img = load_first_available_image(["head_open.jpg", "head_open.jpeg", "head_open.png"], (170, 95)) or make_labeled_surface((170, 95), "BOB :O", (85, 146, 98))
+    bob_closed_img = load_first_available_image(["head_closed.jpg", "head_closed.jpeg", "head_closed.png"], (170, 95)) or make_labeled_surface((170, 95), "BOB :)", (68, 126, 82))
 
-    pants_img = load_image_if_exists(PANTS_IMAGE, (64, 64)) or make_labeled_surface((64, 64), "PANTS", (246, 215, 66))
+    pants_img = load_first_available_image(["pants.jpg", "pants.jpeg", "pants.png"], (64, 64)) or make_labeled_surface((64, 64), "PANTS", (246, 215, 66))
 
     drop_images = {
         "watermelon": make_drop_image("watermelon", "🍉"),

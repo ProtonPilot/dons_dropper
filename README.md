@@ -33,7 +33,7 @@ python dons_dropper.py
 
 To avoid GitHub PR issues with binary image diffs, this repo does **not** require committed PNG assets.
 
-- Don/Bob images are loaded from `assets/` **if present**.
+- Don/Bob images are loaded from `assets/` next to the script, or from the current working directory `assets/`.
 - If those files are missing, the game renders clean fallback sprites in memory.
 - Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime when emoji fonts are available.
 - You can optionally provide `assets/watermelon.png|jpg`, `assets/beer_mug.png|jpg`, and `assets/eggplant.png|jpg` to guarantee image-based drops on systems without emoji fonts.
