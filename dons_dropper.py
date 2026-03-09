@@ -21,6 +21,7 @@ BUTTON_COLOR = (51, 102, 209)
 BUTTON_HOVER = (71, 128, 232)
 
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+ASSET_SEARCH_DIRS = [ASSETS_DIR, Path.cwd() / "assets"]
 
 
 def build_asset_search_dirs() -> list[Path]:
@@ -148,11 +149,7 @@ def load_image_if_exists(name: str, size: tuple[int, int]) -> pygame.Surface | N
         if not image_path.exists():
             continue
         try:
-            image = pygame.image.load(image_path)
-            try:
-                image = image.convert_alpha()
-            except pygame.error:
-                image = image.convert()
+            image = pygame.image.load(image_path).convert_alpha()
             return pygame.transform.smoothscale(image, size)
         except pygame.error:
             continue
@@ -171,7 +168,7 @@ def make_drop_image(item_key: str, emoji: str, size: tuple[int, int] = (64, 64))
     image = load_first_available_image([f"{item_key}.png", f"{item_key}.jpg", f"{item_key}.jpeg"], size)
     if image is not None:
         return image
-    return make_emoji_surface(emoji, item_key, size)
+    return make_emoji_surface(emoji, size)
 
 
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
