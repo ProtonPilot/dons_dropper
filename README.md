@@ -20,6 +20,8 @@ A small pygame arcade game where **Don** drops items and **Bob** catches them.
 
 ```bash
 python -m pip install -r requirements.txt
+# Optional but recommended for robust JPG decoding fallback:
+python -m pip install pillow
 python dons_dropper.py
 ```
 
@@ -33,9 +35,11 @@ python dons_dropper.py
 
 To avoid GitHub PR issues with binary image diffs, this repo does **not** require committed PNG assets.
 
-- Don/Bob images are loaded from `assets/` **if present**.
+- Don/Bob images are loaded from nearby `assets/` folders (script dir, cwd, and parent directories) to make startup-location issues less likely.
+- JPG/PNG decoding first uses pygame and then automatically falls back to Pillow (if installed) for files pygame cannot decode.
 - If those files are missing, the game renders clean fallback sprites in memory.
-- Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime (no emoji PNGs required).
+- Emoji drops (🍉, 🍺, 🍆) are rendered directly at runtime when emoji fonts are available; if the font only returns missing-glyph boxes, the game now falls back to built-in icon art instead of placeholder text.
+- You can optionally provide `assets/watermelon.png|jpg`, `assets/beer_mug.png|jpg`, and `assets/eggplant.png|jpg` to guarantee image-based drops on systems without emoji fonts.
 - Yellow pants uses `assets/pants.jpg` when available, with a fallback sprite if missing.
 - Main character assets are loaded from `assets/dropper.jpg`, `assets/head_open.jpg`, and `assets/head_closed.jpg`.
 - Item spawning uses a shuffled 4-item wave so each set has equal frequency: 🍉, 🍺, 🍆, and pants (from `assets/pants.jpg`).
