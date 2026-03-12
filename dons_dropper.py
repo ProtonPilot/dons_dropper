@@ -22,6 +22,26 @@ BUTTON_COLOR = (51, 102, 209)
 BUTTON_HOVER = (71, 128, 232)
 
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+ASSET_SEARCH_DIRS = [ASSETS_DIR, Path.cwd() / "assets"]
+
+
+def build_asset_search_dirs() -> list[Path]:
+    roots = [Path(__file__).resolve().parent, Path.cwd()]
+    for root in list(roots):
+        roots.extend(root.parents)
+
+    dirs: list[Path] = []
+    seen: set[Path] = set()
+    for root in roots:
+        assets_dir = root / "assets"
+        if assets_dir in seen:
+            continue
+        seen.add(assets_dir)
+        dirs.append(assets_dir)
+    return dirs
+
+
+ASSET_SEARCH_DIRS = build_asset_search_dirs()
 
 
 def build_asset_search_dirs() -> list[Path]:
@@ -143,44 +163,16 @@ def make_emoji_surface(emoji: str, item_key: str, size: tuple[int, int] = (64, 6
     return surface
 
 
-
-
-def decode_with_pillow(image_path: Path, size: tuple[int, int]) -> pygame.Surface | None:
-    try:
-        from PIL import Image
-    except Exception:
-        return None
-
-    try:
-        with Image.open(image_path) as image:
-            converted = image.convert("RGBA").resize(size, Image.Resampling.LANCZOS)
-            raw = converted.tobytes()
-            surface = pygame.image.fromstring(raw, converted.size, "RGBA")
-            return surface.convert_alpha()
-    except Exception as error:
-        warnings.warn(f"Pillow failed to decode image '{image_path}': {error}")
-        return None
-
 def load_image_if_exists(name: str, size: tuple[int, int]) -> pygame.Surface | None:
     for assets_dir in ASSET_SEARCH_DIRS:
         image_path = assets_dir / name
         if not image_path.exists():
             continue
-
         try:
-            image = pygame.image.load(image_path)
-            try:
-                image = image.convert_alpha()
-            except pygame.error:
-                image = image.convert()
+            image = pygame.image.load(image_path).convert_alpha()
             return pygame.transform.smoothscale(image, size)
-        except pygame.error as error:
-            warnings.warn(f"pygame failed to decode image '{image_path}': {error}")
-
-        pillow_image = decode_with_pillow(image_path, size)
-        if pillow_image is not None:
-            return pillow_image
-
+        except pygame.error:
+            continue
     return None
 
 
@@ -196,7 +188,7 @@ def make_drop_image(item_key: str, emoji: str, size: tuple[int, int] = (64, 64))
     image = load_first_available_image([f"{item_key}.png", f"{item_key}.jpg", f"{item_key}.jpeg"], size)
     if image is not None:
         return image
-    return make_emoji_surface(emoji, item_key, size)
+    return make_emoji_surface(emoji, size)
 
 
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
