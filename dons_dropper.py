@@ -1,3 +1,4 @@
+import os
 import random
 import sys
 import warnings
@@ -20,6 +21,8 @@ BG_COLOR = (24, 26, 34)
 TEXT_COLOR = (242, 242, 242)
 BUTTON_COLOR = (51, 102, 209)
 BUTTON_HOVER = (71, 128, 232)
+
+DEBUG_ASSET_LOADING = os.environ.get("DONS_DROPPER_DEBUG_ASSETS", "1") not in {"0", "false", "False"}
 
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 ASSET_SEARCH_DIRS = [ASSETS_DIR, Path.cwd() / "assets"]
@@ -61,6 +64,31 @@ def build_asset_search_dirs() -> list[Path]:
 
 
 ASSET_SEARCH_DIRS = build_asset_search_dirs()
+
+
+def build_asset_search_dirs() -> list[Path]:
+    roots = [Path(__file__).resolve().parent, Path.cwd()]
+    for root in list(roots):
+        roots.extend(root.parents)
+
+    dirs: list[Path] = []
+    seen: set[Path] = set()
+    for root in roots:
+        assets_dir = root / "assets"
+        if assets_dir in seen:
+            continue
+        seen.add(assets_dir)
+        dirs.append(assets_dir)
+    return dirs
+
+
+ASSET_SEARCH_DIRS = build_asset_search_dirs()
+
+
+def debug_asset(message: str) -> None:
+    if DEBUG_ASSET_LOADING:
+        print(f"[assets] {message}")
+
 
 DROPPER_IMAGE = "dropper.jpg"
 HEAD_OPEN_IMAGE = "head_open.jpg"
@@ -163,16 +191,50 @@ def make_emoji_surface(emoji: str, item_key: str, size: tuple[int, int] = (64, 6
     return surface
 
 
+
+
+def decode_with_pillow(image_path: Path, size: tuple[int, int]) -> pygame.Surface | None:
+    try:
+        from PIL import Image
+    except Exception:
+        return None
+
+    try:
+        with Image.open(image_path) as image:
+            converted = image.convert("RGBA").resize(size, Image.Resampling.LANCZOS)
+            raw = converted.tobytes()
+            surface = pygame.image.fromstring(raw, converted.size, "RGBA")
+            return surface.convert_alpha()
+    except Exception as error:
+        warnings.warn(f"Pillow failed to decode image '{image_path}': {error}")
+        return None
+
 def load_image_if_exists(name: str, size: tuple[int, int]) -> pygame.Surface | None:
     for assets_dir in ASSET_SEARCH_DIRS:
         image_path = assets_dir / name
         if not image_path.exists():
+            debug_asset(f"not found: {image_path}")
             continue
+
+        debug_asset(f"trying: {image_path}")
         try:
-            image = pygame.image.load(image_path).convert_alpha()
+            image = pygame.image.load(image_path)
+            try:
+                image = image.convert_alpha()
+            except pygame.error:
+                image = image.convert()
+            debug_asset(f"loaded via pygame: {image_path}")
             return pygame.transform.smoothscale(image, size)
-        except pygame.error:
-            continue
+        except pygame.error as error:
+            warnings.warn(f"pygame failed to decode image '{image_path}': {error}")
+            debug_asset(f"pygame decode failed: {image_path} ({error})")
+
+        pillow_image = decode_with_pillow(image_path, size)
+        if pillow_image is not None:
+            debug_asset(f"loaded via pillow: {image_path}")
+            return pillow_image
+
+    debug_asset(f"all candidates failed for: {name}")
     return None
 
 
@@ -188,7 +250,7 @@ def make_drop_image(item_key: str, emoji: str, size: tuple[int, int] = (64, 64))
     image = load_first_available_image([f"{item_key}.png", f"{item_key}.jpg", f"{item_key}.jpeg"], size)
     if image is not None:
         return image
-    return make_emoji_surface(emoji, size)
+    return make_emoji_surface(emoji, item_key, size)
 
 
 def reset_game() -> tuple[list[Drop], int, int, float, int]:
@@ -197,6 +259,9 @@ def reset_game() -> tuple[list[Drop], int, int, float, int]:
 
 def main() -> None:
     pygame.init()
+    debug_asset("asset search dirs:")
+    for folder in ASSET_SEARCH_DIRS:
+        debug_asset(f" - {folder}")
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Don's Dropper")
     clock = pygame.time.Clock()
