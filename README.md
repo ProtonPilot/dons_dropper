@@ -20,6 +20,8 @@ A small pygame arcade game where **Don** drops items and **Bob** catches them.
 
 ```bash
 python -m pip install -r requirements.txt
+# Optional but recommended for robust JPG decoding fallback:
+python -m pip install pillow
 python dons_dropper.py
 ```
 
