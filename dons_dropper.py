@@ -25,6 +25,45 @@ BUTTON_HOVER = (71, 128, 232)
 DEBUG_ASSET_LOADING = os.environ.get("DONS_DROPPER_DEBUG_ASSETS", "1") not in {"0", "false", "False"}
 
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+ASSET_SEARCH_DIRS = [ASSETS_DIR, Path.cwd() / "assets"]
+
+
+def build_asset_search_dirs() -> list[Path]:
+    roots = [Path(__file__).resolve().parent, Path.cwd()]
+    for root in list(roots):
+        roots.extend(root.parents)
+
+    dirs: list[Path] = []
+    seen: set[Path] = set()
+    for root in roots:
+        assets_dir = root / "assets"
+        if assets_dir in seen:
+            continue
+        seen.add(assets_dir)
+        dirs.append(assets_dir)
+    return dirs
+
+
+ASSET_SEARCH_DIRS = build_asset_search_dirs()
+
+
+def build_asset_search_dirs() -> list[Path]:
+    roots = [Path(__file__).resolve().parent, Path.cwd()]
+    for root in list(roots):
+        roots.extend(root.parents)
+
+    dirs: list[Path] = []
+    seen: set[Path] = set()
+    for root in roots:
+        assets_dir = root / "assets"
+        if assets_dir in seen:
+            continue
+        seen.add(assets_dir)
+        dirs.append(assets_dir)
+    return dirs
+
+
+ASSET_SEARCH_DIRS = build_asset_search_dirs()
 
 
 def build_asset_search_dirs() -> list[Path]:
